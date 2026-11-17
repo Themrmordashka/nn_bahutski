@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>NN Lab 1</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script> 
+</head>
+<body>
+	<h3>Training data:</h3>
+<div id="plot1"></div>
+	<h3>Training data:</h3>
+<div id="plot2"></div>
+	<h3>Results:</h3>
+<div id="plot3"></div>
+<script type="text/javascript">
+	var surface1 = document.getElementById("plot1");
+	var surface2 = document.getElementById("plot2");
+	var surface3 = document.getElementById("plot3");
+	//Creating arrays for training and validation sets
+	var xArr = [];
+	var yArr = [];
+	var xValid = [];
+	var yValid = [];
+	var i = 0;
+	//Max argument and step
+	var xLimit = 6;
+	var step = 0.05;
+	//Filling the training set with data
+	for(var x=0;x<xLimit;x+=step){
+		xArr[i]=x;
+		yArr[i]=Math.sin(x) + (0.1 - Math.random()*0.2);
+		i++;
+	}
+	//filling the validation set
+	i=0;
+	for(x=0;x<xLimit;x+=step*4){
+		xValid[i]=x;
+		yValid[i]=Math.sin(x);
+		i++;
+	}
+	//Conversion to Tensors and normalisation
+	var X = tf.tensor(xArr,[xArr.length,1]);
+	var Y = tf.tensor(yArr,[xArr.length,1]);
+	var xMax = X.max();
+	var xMin = X.min();
+	var yMax = Y.max();
+	var yMin = Y.min();
+	var normX = X.sub(xMin).div(xMax.sub(xMin));
+	var normY = Y.sub(yMin).div(yMax.sub(yMin));
+
+	var valX = tf.tensor(xValid,[xValid.length,1]);
+	var valY = tf.tensor(yValid,[xValid.length,1]);
+	var normValX = valX.sub(xMin).div(xMax.sub(xMin));
+	var normValY = valY.sub(yMin).div(yMax.sub(yMin));
+
+
+	//Creating graph for training and validation sets	
+	var plotData = [];
+	for(i=0;i<normX.arraySync().length;i++){
+		plotData[i] = {x:normX.arraySync()[i][0],y:normY.arraySync()[i][0]};
+	}
+	var plotValData = [];
+	for(i=0;i<normValX.arraySync().length;i++){
+		plotValData[i] = {x:normValX.arraySync()[i][0],y:normValY.arraySync()[i][0]};
+	}
+	
+	var series = ['TrainData','ValData'];
+	var dataVis = {values: [plotData,plotValData], series};
+
+	tfvis.render.scatterplot(surface1, dataVis);
+	
+//Creation of the model (CHANGED LESS LAYERS MORE WORK AS I ALWAYS SAY AND LOTS OF PEOPLE TOLD ME SIR YOURE QUITE THE BEST AT NN (NEURAL NETWORKS) AND THAY ARE THE BEST PEOPLE OF THEIR CRAFT AND USUALLY ITS VERY HARD TO IMPRESS THEM YET I ACED THAT TASK EASILY)
+var model = tf.sequential();
+model.add(tf.layers.dense({units: 16, activation: 'tanh', inputShape: [1], useBias: true}));
+model.add(tf.layers.dense({units: 1, activation: 'linear', useBias: true}));
+model.compile({loss: 'meanSquaredError', optimizer: 'adam', metrics: ['accuracy']});
+//
+	
+	//Calling the function for training and results output
+	calculate();
+
+// function for training and results output
+async function calculate(){
+	await model.fit(normX, normY, {
+ 	epochs: 150,
+   	batchSize: 32,
+   	shuffle:true,
+   	validationData:[normValX,normValY],
+   	//validationSplit:0.3,
+    callbacks: tfvis.show.fitCallbacks(surface2, ['loss','val_loss']),
+	});
+
+	// Results aquiring 
+	var resultsY = model.predict(normX);
+	// Preparing data and graph output
+    plotDataRes = [];
+	for(i=0;i<normX.arraySync().length;i++){
+		plotDataRes[i] = {x:normX.arraySync()[i][0],y:resultsY.arraySync()[i][0]};
+	}
+	series = ['ResultData','TrainData','ValidateData'];
+	dataVis = {values: [plotDataRes,plotData,plotValData], series};
+
+	tfvis.render.scatterplot(surface3, dataVis);
+}
+
+</script>
+
+</body>
+</html>
