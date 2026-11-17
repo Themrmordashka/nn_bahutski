@@ -90,41 +90,43 @@
 	}
 	
 	async function trainNIST(tensorX,tensorY,valTensorX,valTensorY){
-		const model = tf.sequential();
-		model.add(tf.layers.conv2d({
-  			inputShape: [28, 28, 1],
-  			filters: 6,
-  			kernelSize: 5,
-  			padding:'same',
-  			activation: 'relu'
-		}));
-		model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
-		model.add(tf.layers.conv2d({
-  			filters: 16,
-  			kernelSize: 5,
-  			activation: 'relu'
-		}));
-		model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
-		model.add(tf.layers.flatten());
-		model.add(tf.layers.dense({ units: 120, activation: 'relu' }));
-		model.add(tf.layers.dense({ units: 84, activation: 'relu' }));
-		model.add(tf.layers.dense({ units: 10, activation: 'softmax' }));
+    const model = tf.sequential();
+    model.add(tf.layers.rescaling({scale: 1/255, inputShape: [28,28,1]}));
 
-		model.compile({
-  			optimizer: 'adam',
-  			loss: 'categoricalCrossentropy',
-  			metrics: ['accuracy']
-		});
-		model.summary();
-		
-		await model.fit(tensorX, tensorY, {
- 			epochs: 6,
-   			batchSize: 128,
-   			shuffle:true,
-		   	validationData:[valTensorX,valTensorY],
-   			//validationSplit:0.3,
-    		callbacks: tfvis.show.fitCallbacks(surface2, ['loss','val_loss']),
-		});
+    model.add(tf.layers.conv2d({
+        filters: 6,
+        kernelSize: 3,            // 3x3 as required
+        padding: 'same',
+        activation: 'relu'
+    }));
+    model.add(tf.layers.maxPooling2d({poolSize: 2}));
+
+    model.add(tf.layers.conv2d({
+        filters: 16,
+        kernelSize: 3,            // 3x3 as required
+        padding: 'same',
+        activation: 'relu'
+    }));
+    model.add(tf.layers.maxPooling2d({poolSize: 2}));
+
+    model.add(tf.layers.flatten());
+    model.add(tf.layers.dense({units: 32, activation: 'relu'}));   // single small dense layer
+    model.add(tf.layers.dense({units: 10, activation: 'softmax'}));
+
+    model.compile({
+        optimizer: tf.train.adam(0.001),
+        loss: 'categoricalCrossentropy',
+        metrics: ['accuracy']
+    });
+    model.summary();
+
+    await model.fit(tensorX, tensorY, {
+        epochs: 25,
+        batchSize: 128,
+        shuffle: true,
+        validationData: [valTensorX, valTensorY],
+        callbacks: tfvis.show.fitCallbacks(surface2, ['loss','val_loss']),
+    });
 		//let validArr
 		let valTensorPredict = model.predict(valTensorX);
 		let valArrayPredict = valTensorPredict.arraySync();
