@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NN Labworks Bahutski 354</title>
+    <style>
+        :root {
+            --secondary-border-color: #6c757d;
+            --secondary-text-color: #6c757d;
+            --secondary-bg-hover: #6c757d;
+            --secondary-text-hover: #ffffff;
+            --secondary-focus-outline: #6c757d;
+        }
+
+        .secondary-container-1 {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background-color: #ffffff;
+        }
+
+        .secondary-btn-1 {
+            display: inline-block;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background-color: transparent;
+            color: var(--secondary-text-color);
+            border: 2px solid var(--secondary-border-color);
+            border-radius: 8px;
+            padding: calc(1rem - 2px) calc(2rem - 2px); 
+            cursor: pointer;
+            text-decoration: none;
+            line-height: 1.5;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .secondary-btn-1:hover {
+            background-color: var(--secondary-bg-hover);
+            color: var(--secondary-text-hover);
+            border-color: var(--secondary-bg-hover); 
+        }
+        
+        .secondary-btn-1:active {
+            transform: translateY(1px);
+        }
+
+        .secondary-btn-1:focus-visible {
+            outline: 3px solid var(--secondary-focus-outline);
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 600px) {
+            .secondary-btn-1 {
+                font-size: 1rem;
+                padding: calc(0.8rem - 2px) calc(1.6rem - 2px);
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+  
+    <div class="secondary-container-1">
+        <h1>Here are my labworks</h1>
+    </div>
+    <div class="secondary-container-1">
+        <button type="button" class="secondary-btn-1" onclick="document.location='lab1_2_en.html'">Lab2</button>
+    </div>
+    <div class="secondary-container-1">
+        <button type="button" class="secondary-btn-1" id="b2">Lab3</button>
+    </div>
+    <div class="secondary-container-1">
+        <button type="button" class="secondary-btn-1" id="b3">Lab4</button>
+    </div>
+</body>
+</html>
