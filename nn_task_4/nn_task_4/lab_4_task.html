@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>NN Lab 2_1_1</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script> 
+<script src="data.js"></script> 
+<script src="datalabels.js"></script> 
+<script src="validdata.js"></script> 
+<script src="vallabels.js"></script> 
+</head>
+<body>
+<h3>Training data:</h3>
+<div id="images">
+<!--
+<img src="img_res/0/0.png" id="img0">	
+<img src="img_res/1/0.png" id="img1">	
+<img src="img_res/2/0.png" id="img2">	
+<img src="img_res/3/0.png" id="img3">	
+<img src="img_res/4/0.png" id="img4">	
+<img src="img_res/5/0.png" id="img5">	
+<img src="img_res/6/0.png" id="img6">	
+<img src="img_res/7/0.png" id="img7">	
+<img src="img_res/8/0.png" id="img8">	
+<img src="img_res/9/0.png" id="img9">	
+-->	
+</div>
+<div id="plot1"></div>
+<div id="plot2"></div>
+<div id="plot3"></div>
+<div id="plot4"></div>
+<div id="imagesres">
+<!--
+<img src="img_res/0/0.png" id="img10"><span id="predict10"></span><br>
+<img src="img_res/1/0.png" id="img11"><span id="predict11"></span><br>	
+<img src="img_res/2/0.png" id="img12"><span id="predict12"></span><br>	
+<img src="img_res/3/0.png" id="img13"><span id="predict13"></span><br>	
+<img src="img_res/4/0.png" id="img14"><span id="predict14"></span><br>	
+<img src="img_res/5/0.png" id="img15"><span id="predict15"></span><br>	
+<img src="img_res/6/0.png" id="img16"><span id="predict16"></span><br>	
+<img src="img_res/7/0.png" id="img17"><span id="predict17"></span><br>	
+<img src="img_res/8/0.png" id="img18"><span id="predict18"></span><br>	
+<img src="img_res/9/0.png" id="img19"><span id="predict19"></span><br>	
+-->	
+</div>
+<script type="text/javascript">
+
+	var surface1 = document.getElementById("plot1");
+	var surface2 = document.getElementById("plot2");
+	var surface3 = document.getElementById("plot3");
+	var surface4 = document.getElementById("plot4");
+	var surfParent = document.getElementById("imagesres");
+
+	
+	var trainJSON = "";
+
+	var num = 0;
+	var valNum = 0;
+	var dir = "/Users/anton/eclipse-workspace/NNLABS/public/img_res/";
+	var type = 0;
+	var IMG_LIMIT = 1000;
+	var IMG_VAL_LIMIT = 200;
+	var tensors =new Array();
+	var valTensors =new Array();
+	var valLabels =new Array();
+	var valTensorNum = 0;
+	var tensorNum = 0;
+//	var zImg = document.getElementById("img0");
+//	var imgObj = document.createElement("img") //new Image;
+	var arrayLabels = new Array();
+	//imgObj.setAttribute('crossOrigin','anonymous');
+	//imgObj.onload = nextImg;
+//	imgObj.src = dir+type+"/"+num+".png";
+//	for(var n=0;n<9;n++){
+//		let imgTestObj = document.getElementById("img1"+n);
+//		imgTestObj.src = dir+n+"/"+(IMG_LIMIT+IMG_VAL_LIMIT+Math.ceil(Math.random()*20+1))+".png"
+//	}
+	nextImg();
+	function nextImg(){
+					resTensor = tf.tensor(trainData);
+					//resTensor.print();
+					resValTensors= tf.tensor(validData);
+					resTensorLabels =tf.tensor(dataLabels,[10000,10]);
+					resValTensorLabels =tf.tensor(validLabels/*,[2000,10,1]*/);
+					trainNIST(resTensor,resTensorLabels,resValTensors,resValTensorLabels);
+					
+		
+	}
+	
+	async function trainNIST(tensorX,tensorY,valTensorX,valTensorY){
+		const model = tf.sequential();
+		model.add(tf.layers.conv2d({
+  			inputShape: [28, 28, 1],
+  			filters: 6,
+  			kernelSize: 5,
+  			padding:'same',
+  			activation: 'relu'
+		}));
+		model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
+		model.add(tf.layers.conv2d({
+  			filters: 16,
+  			kernelSize: 5,
+  			activation: 'relu'
+		}));
+		model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
+		model.add(tf.layers.flatten());
+		model.add(tf.layers.dense({ units: 120, activation: 'relu' }));
+		model.add(tf.layers.dense({ units: 84, activation: 'relu' }));
+		model.add(tf.layers.dense({ units: 10, activation: 'softmax' }));
+
+		model.compile({
+  			optimizer: 'adam',
+  			loss: 'categoricalCrossentropy',
+  			metrics: ['accuracy']
+		});
+		model.summary();
+		
+		await model.fit(tensorX, tensorY, {
+ 			epochs: 6,
+   			batchSize: 128,
+   			shuffle:true,
+		   	validationData:[valTensorX,valTensorY],
+   			//validationSplit:0.3,
+    		callbacks: tfvis.show.fitCallbacks(surface2, ['loss','val_loss']),
+		});
+		//let validArr
+		let valTensorPredict = model.predict(valTensorX);
+		let valArrayPredict = valTensorPredict.arraySync();
+		
+		for(i=0;i<10;i++){
+			n = Math.ceil(Math.random() * IMG_VAL_LIMIT*10);
+			let newBlock = document.createElement("canvas");
+			newBlock.setAttribute("style","width:"+28+"px;");
+			surfParent.appendChild(newBlock);
+			tf.browser.toPixels(tf.tensor(validData[n],[28,28,1],'int32'),newBlock);
+			
+			newBlock = document.createElement("span");
+			
+			let arrVals = "";
+			for(let k=0;k<valArrayPredict[n].length;k++){
+				arrVals += valArrayPredict[n][k].toFixed(5)+"; ";
+			}
+//			let textNode = document.createTextNode(valArrayPredict[n].toString());
+			let textNode = document.createTextNode(arrVals);
+			//console.log(valArrayPredict[n].toString());
+			//console.log(textNode);
+			newBlock.appendChild(textNode);
+			surfParent.appendChild(newBlock);
+			newBlock = document.createElement("br");
+			surfParent.appendChild(newBlock);
+			 
+
+		}
+		
+		let valArrayNumPredict = new Array();
+		for(i=0;i<valArrayPredict.length;i++){
+			max = 0;
+			for(j=1;j<valArrayPredict[i].length;j++){
+				if(valArrayPredict[i][j]>valArrayPredict[i][max]){
+					max = j;
+				}
+				valArrayNumPredict[i] = max;
+			}
+		}
+		let valArrayNum = new Array();
+		for(i=0;i<validLabels.length;i++){
+			max = 0;
+			for(j=1;j<validLabels[i].length;j++){
+				if(validLabels[i][j]>validLabels[i][max]){
+					max = j;
+				}
+				valArrayNum[i] = max;
+			}
+		}
+		
+		const out = tf.math.confusionMatrix(tf.tensor(valArrayNum), tf.tensor(valArrayNumPredict), 10);
+		//out.print();
+		
+		tfvis.render.confusionMatrix(surface3, {values:out.arraySync()});
+		//surface3.innerHTML = "<pre>"+JSON.stringify(out.arraySync());
+
+	}
+	
+
+</script>
+
+</body>
+</html>
