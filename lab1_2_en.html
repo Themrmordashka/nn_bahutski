@@ -72,7 +72,7 @@
 	tfvis.render.scatterplot(surface1, dataVis);
 	
 var model = tf.sequential();
-model.add(tf.layers.dense({units: 16, activation: 'relu', inputShape: [1], useBias: true}));
+model.add(tf.layers.dense({units: 32, activation: 'tahn', inputShape: [1], useBias: true}));
 model.add(tf.layers.dense({units: 1, activation: 'linear', useBias: true}));
 model.compile({loss: 'meanSquaredError', optimizer: 'adam', metrics: ['accuracy']});
 //
@@ -83,7 +83,7 @@ model.compile({loss: 'meanSquaredError', optimizer: 'adam', metrics: ['accuracy'
 // function for training and results output
 async function calculate(){
 	await model.fit(normX, normY, {
- 	epochs: 150,
+ 	epochs: 50,
    	batchSize: 32,
    	shuffle:true,
    	validationData:[normValX,normValY],
