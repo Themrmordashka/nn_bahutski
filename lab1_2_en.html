@@ -83,7 +83,7 @@ model.compile({loss: 'meanSquaredError', optimizer: 'adam', metrics: ['accuracy'
 // function for training and results output
 async function calculate(){
 	await model.fit(normX, normY, {
- 	epochs: 50,
+ 	epochs: 150,
    	batchSize: 32,
    	shuffle:true,
    	validationData:[normValX,normValY],
