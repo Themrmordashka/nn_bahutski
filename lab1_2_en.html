@@ -71,8 +71,9 @@
 
 	tfvis.render.scatterplot(surface1, dataVis);
 	
+//Creation of the model (CHANGED LESS LAYERS MORE WORK AS I ALWAYS SAY AND LOTS OF PEOPLE TOLD ME SIR YOURE QUITE THE BEST AT NN (NEURAL NETWORKS) AND THAY ARE THE BEST PEOPLE OF THEIR CRAFT AND USUALLY ITS VERY HARD TO IMPRESS THEM YET I ACED THAT TASK EASILY)
 var model = tf.sequential();
-model.add(tf.layers.dense({units: 16, activation: 'tahn', inputShape: [1], useBias: true}));
+model.add(tf.layers.dense({units: 16, activation: 'tanh', inputShape: [1], useBias: true}));
 model.add(tf.layers.dense({units: 1, activation: 'linear', useBias: true}));
 model.compile({loss: 'meanSquaredError', optimizer: 'adam', metrics: ['accuracy']});
 //
